@@ -1,52 +1,88 @@
+const MoveTypes = {
+    Scissors: "Scissors",
+    Rock: "Rock",
+    Paper: "Paper",
+}
+
+class Move {
+    constructor() {
+        let index = Math.floor(Math.random() * Object.keys(MoveTypes).length);
+        this.type = Object.keys(MoveTypes)[index];
+    }
+}
+
 class Player {
     constructor(name) {
         this.name = name;
-        this.wins = 0;
-        this.lose = 0;
-        this.pieces;
-        this.obj = ["scisors", "rock", "paper"];
-
+        this.winsCount = 0;
+        this.loseCount = 0;
     }
-    randomTurn() {
-       let turn = Math.floor(Math.random() * 3);
-       this.pieces = this.obj[turn];
-       console.log(this.pieces);
-       return turn;
+
+    isWinChamp() {
+        return this.winsCount === 5; // true / false
+    }
+
+    win() {
+        console.log(`${this.name} wins with count ${this.winsCount}`);
+        this.winsCount++;
+    }
+
+    lose() {
+        this.loseCount++;
+    }
+
+    getMove() {
+        return new Move();
     }
 }
 
-let game = {
- thisWinner: "",
- previousWinner: ""
-}
+class Game {
+    constructor(player1, player2) {
+        this.player1 = player1;
+        this.player2 = player2;
 
-
-let Peter = new Player("Peter");
-let Ivan = new Player("Ivan");
-
-let gameStart = () => {
-     let chek1 = Peter.randomTurn();
-     let chek2 = Ivan.randomTurn();
-    if(Peter.pieces === Ivan.pieces){
-        Peter.lose = 0;
-        Ivan.lose = 0;
-    } else if (Peter.pieces == "scisors" && Ivan.pieces == "paper" ||  Peter.pieces == "paper" && Ivan.pieces == "rock") {
-        Peter.wins += 1;
-        Ivan.lose += 1;
-    } else if (Peter.pieces == "paper" && Ivan.pieces == "scisors" ||  Peter.pieces == "rock" && Ivan.pieces == "paper"){ // not working
-        Peter.lose += 1;
-        Ivan.win += 1;
+        this.isGameOver = false;
     }
-    console.log(`
-    Peter: ${Peter.pieces}, wins ${Peter.wins}
-    Ivan: ${Ivan.pieces},  wins ${Ivan.wins}
-    `)
 
+    start() {
+        while(!this.isGameOver) {
+            // debugger;
 
-    // TODO:  compare two Player.obj
-    // choose winner
-    //
+            let player1Turn = this.player1.getMove();
+            let player2Turn = this.player2.getMove();
 
+            if(player1Turn.type === player2Turn.type) {
+                continue;
 
+            } else if (
+                (player1Turn.type === MoveTypes.Scissors && player2Turn.type === MoveTypes.Paper) ||
+                (player1Turn.type === MoveTypes.Paper && player2Turn.type === MoveTypes.Rock)
+            ) {
+                this.player1.win();
+                this.player2.lose();
+            } else {
+                this.player1.lose();
+                this.player2.win();
+            }
+
+            if(this.player1.isWinChamp() || this.player2.isWinChamp()) {
+                this.isGameOver = true;
+            }
+        }
+
+        this.gameOver();
+    }
+
+    // method to tell the players that they are win/lose
+    gameOver() {
+        console.log(`
+            Game over
+            
+            Player1 score: ${this.player1.winsCount}
+            Player2 score: ${this.player2.winsCount}
+        `)
+    }
 }
-gameStart();
+
+let roshambo = new Game(new Player("Peter"), new Player("Ivan"))
+roshambo.start();
